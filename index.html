@@ -32,7 +32,7 @@
     <aside class="sidebar">
       <div class="section"><div class="panel-title">导入素材</div>
         <label class="btn primary" style="display:flex;justify-content:center;width:100%;"><input id="imageFiles" type="file" accept="image/*" multiple>导入立绘</label>
-        <div class="hint">一次选择全身立绘和全部差分。系统会优先选择文件名含“默认”的图片，否则选择第一张作为全身立绘。</div>
+        <div class="hint">系统会优先选择文件名含“默认/普通/通常/01”的图片</div>
         <div class="row"><label>全身立绘</label><select id="fullbodySelect" style="width:150px"><option value="">未导入</option></select></div>
         <div id="dropZone" class="drop">也可以把图片拖到这里</div>
       </div>
@@ -43,8 +43,10 @@
       </div>
       <div class="section"><div class="panel-title">角色信息</div>
         <div class="row"><label>姓名</label><input id="characterName" type="text" placeholder="角色姓名" value="角色姓名"></div>
+        <div class="row"><label>姓名字色</label><input id="nameColor" type="color" value="#202733"></div>
         <div class="row"><label>姓名字号</label><input id="nameSize" type="number" min="12" max="240" value="72"></div>
         <div class="row"><label>副标题</label><input id="subtitle" type="text" placeholder="可选"></div>
+        <div class="row"><label>副标题字色</label><input id="subtitleColor" type="color" value="#202733"></div>
         <div class="row"><label>副标题位置</label><select id="subtitleSide"><option value="right" selected>姓名右侧</option><option value="left">姓名左侧</option></select></div>
         <div class="row"><label>副标题字号</label><input id="subtitleSize" type="number" min="8" max="180" value="48"></div>
         <div class="row"><label>字体</label><label class="btn" style="padding:6px 9px"><input id="fontFile" type="file" accept=".ttf,.otf,.woff,.woff2">上传字体</label><button id="resetFont" class="btn" type="button" style="padding:6px 9px">恢复默认</button></div>
@@ -59,6 +61,8 @@
         <div class="row"><label>行间距</label><input id="rowGap" type="number" min="0" max="200" value="28"></div>
         <div class="row"><label>差分字号</label><input id="labelSize" type="number" min="8" max="100" value="28"></div>
         <div class="row"><label>标签前缀</label><input id="labelPrefix" type="text" value="@"></div>
+        <div class="row"><label>差分字色</label><input id="labelColor" type="color" value="#202733"></div>
+        <div class="row"><label>描边字色</label><input id="labelStrokeColor" type="color" value="#ffffff"></div>
         <label class="check"><input id="showLabels" type="checkbox" checked>显示差分名称</label>
         <label class="check"><input id="showLabelBg" type="checkbox" checked>显示差分名称白底</label>
       </div>
@@ -69,6 +73,7 @@
         <div class="range-row"><label>豆腐块高</label><input id="cellH" type="range" min="80" max="800" value="220"><output id="cellHValue">220</output></div>
         <div class="range-row"><label>整组位置X</label><input id="groupX" type="range" min="0" max="5000" value="500"><output id="groupXValue">500</output></div>
         <div class="range-row"><label>整组位置Y</label><input id="groupY" type="range" min="0" max="3000" value="60"><output id="groupYValue">60</output></div>
+        <div class="row"><label>背景颜色</label><input id="diffBgColor" type="color" value="#f0f2f5"></div>
       </div>
       <div class="footer-note">所有图片只在当前浏览器内处理，不会上传服务器。</div>
     </aside>
