@@ -73,6 +73,7 @@ controls.forEach(id=>$(id).addEventListener('input',()=>{if(id==='groupX'||id===
 $('imageFiles').onchange=e=>addExpressions(e.target.files);$('fullbodyFile').onchange=e=>{const file=e.target.files[0];if(file)handleStandaloneFullbody(file)};$('fullbodySelect').onchange=e=>setFullbody(e.target.value);$('exportPng').onclick=exportPng;
 $('fontFile').onchange=e=>{const file=e.target.files[0];if(!file)return;const r=new FileReader();r.onload=()=>installFont(r.result,file.name).catch(()=>alert('字体读取失败'));r.readAsDataURL(file)};
 $('resetFont').onclick=()=>{state.fontFamily='system-ui';state.fontName='系统默认';state.fontData=null;$('fontFile').value='';$('fontName').textContent='当前字体：系统默认';renderAll()};
+$('resetColors').onclick=()=>{setControls({bgColor:'#ffffff',transparent:false,nameColor:'#202733',subtitleColor:'#202733',labelColor:'#202733',labelStrokeColor:'#ffffff',diffBgColor:'#f0f2f5'});draw()};
 $('newProject').onclick=()=>{if(confirm('清空当前工程？')){state.expressions=[];state.fullbodyId=null;state.fullbodyStandalone=null;state.selected=null;state.layoutSet=false;state.fontFamily='system-ui';state.fontName='系统默认';state.fontData=null;$('fontName').textContent='当前字体：系统默认';renderAll()}};
 $('saveProject').onclick=()=>{const b=new Blob([JSON.stringify(projectData())],{type:'application/json'}),a=document.createElement('a');a.download='差分平铺工程.json';a.href=URL.createObjectURL(b);a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)};
 $('loadProject').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>loadProjectData(JSON.parse(r.result)).catch(()=>alert('工程文件读取失败'));r.readAsText(f)};
@@ -80,4 +81,7 @@ window.addEventListener('resize',()=>{syncCanvasStage();syncSelectionOverlay()})
 ['selectedX','selectedY','selectedZoom'].forEach(id=>$(id).oninput=()=>{const x=currentSelected();if(!x)return;x.dx=Number($('selectedX').value)||0;x.dy=Number($('selectedY').value)||0;x.zoom=Number($('selectedZoom').value)||1;draw()});$('resetSelected').onclick=()=>{const x=currentSelected();if(!x)return;x.dx=x.dy=0;x.zoom=1;updateSelectedUI();draw()};
 canvasWrap.addEventListener('pointerdown',e=>{if(e.target===canvasWrap)clearSelection()});
 const dz=$('dropZone');['dragenter','dragover'].forEach(e=>dz.addEventListener(e,x=>{x.preventDefault();dz.classList.add('over')}));['dragleave','drop'].forEach(e=>dz.addEventListener(e,x=>{x.preventDefault();dz.classList.remove('over')}));dz.addEventListener('drop',e=>addExpressions(e.dataTransfer.files));
+function resetStartupText(){ $('characterName').value='角色姓名'; $('subtitle').value=''; draw() }
+window.addEventListener('pageshow',resetStartupText);
+resetStartupText();
 renderAll();
