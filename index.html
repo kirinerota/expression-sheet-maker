@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>差分平铺工具</title>
+  <style>
+    :root{--bg:#f3f5f8;--panel:#fff;--line:#dfe4ea;--ink:#202733;--muted:#718096;--accent:#5267d9;--accent-soft:#eef0ff;--danger:#d75667;--shadow:0 10px 30px #25304a12}
+    *{box-sizing:border-box} html,body{height:100%} body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif}
+    button,input,select{font:inherit} button{border:0;cursor:pointer} .app{min-height:100vh;display:flex;flex-direction:column}
+    header{height:64px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 22px;gap:18px;flex-shrink:0}
+    .brand{font-weight:750;font-size:18px;letter-spacing:.02em;white-space:nowrap}.brand small{display:block;color:var(--muted);font-size:11px;font-weight:500;letter-spacing:0}
+    .actions{display:flex;gap:8px;align-items:center;margin-left:auto;flex-wrap:wrap}.btn{padding:9px 13px;border-radius:9px;background:#eef1f5;color:var(--ink);font-weight:650}.btn:hover{filter:brightness(.98)}.btn.primary{background:var(--accent);color:#fff}.btn.ghost{background:transparent;color:var(--accent)}.btn.danger{color:var(--danger);background:#fff0f2}
+    main{display:grid;grid-template-columns:310px minmax(520px,1fr) 280px;gap:14px;padding:14px;min-height:0;flex:1;overflow:hidden}
+    aside,.workspace{background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);min-height:0}.sidebar{padding:15px;overflow-y:auto;overflow-x:hidden;max-height:calc(100vh - 92px)}.workspace{padding:14px;display:flex;flex-direction:column;overflow:hidden}
+    .panel-title{font-weight:750;margin:3px 0 12px}.section{border-top:1px solid var(--line);padding:15px 0 2px}.section:first-child{border-top:0;padding-top:0}.row{display:flex;align-items:center;gap:8px;margin:9px 0}.row>label{flex:1;color:#4c596d}.row input[type=number],.row input[type=text],.row select{width:112px;border:1px solid var(--line);border-radius:7px;padding:6px 7px;color:var(--ink);background:#fff}.row input[type=color]{width:42px;height:30px;border:1px solid var(--line);padding:2px;border-radius:7px;background:#fff}.row input[type=range]{width:112px}.check{display:flex;align-items:center;gap:7px;color:#4c596d}.check input{accent-color:var(--accent)}.hint{color:var(--muted);font-size:12px;margin:7px 0 11px}.file-btn{display:flex;align-items:center;justify-content:center;width:100%;border:1px dashed #aeb8cb;border-radius:9px;padding:11px;color:var(--accent);background:#fafbff;font-weight:700}.file-btn:hover{background:var(--accent-soft)}input[type=file]{display:none}
+    .canvas-wrap{flex:1;min-height:0;overflow:auto;border:1px solid var(--line);border-radius:11px;background:repeating-conic-gradient(#f7f8fa 0 25%,#eef1f4 0 50%) 50%/18px 18px;display:flex;align-items:flex-start;justify-content:center;padding:20px}.canvas-stage{position:relative;flex:0 0 auto}.canvas-stage canvas{display:block;width:100%;height:100%;box-shadow:0 12px 34px #1a233326;background:#fff;touch-action:none;cursor:grab}.canvas-stage canvas.dragging{cursor:grabbing}.selection-overlay{position:absolute;inset:0;pointer-events:none;z-index:2}.selection-handle{position:absolute;width:12px;height:12px;margin:-6px 0 0 -6px;padding:0;border:1.5px solid #5267d9;border-radius:2px;background:#fff;pointer-events:auto;cursor:nwse-resize}.selection-handle.ne,.selection-handle.sw{cursor:nesw-resize}.status{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;padding:9px 1px 0}.dot{width:7px;height:7px;border-radius:50%;background:#4caf78}.empty{display:flex;align-items:center;justify-content:center;min-height:220px;text-align:center;color:var(--muted);padding:24px}.drop{border:1px dashed #aeb8cb;border-radius:9px;padding:13px;text-align:center;color:var(--muted);font-size:12px;margin-top:9px}.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+    .expression-list{display:flex;flex-direction:column;gap:8px;overflow:visible}.expr{display:grid;grid-template-columns:52px 1fr auto;gap:8px;align-items:center;border:1px solid var(--line);padding:7px;border-radius:9px;background:#fff;transition:transform .16s ease,box-shadow .16s ease,background .16s ease}.expr.selected{border-color:var(--accent);background:var(--accent-soft)}.expr img{width:52px;height:52px;border-radius:6px;object-fit:cover;background:#f0f2f5;cursor:grab}.expr img:active{cursor:grabbing}.expr.drag-over{transform:translateY(6px) scale(.985);box-shadow:0 7px 14px #5267d933;background:#f5f6ff}.expr .name{min-width:0}.expr .name input{width:100%;border:0;background:transparent;font-weight:650;outline:0;padding:4px 0}.expr .sub{font-size:11px;color:var(--muted);white-space:nowrap}.icon-btn{background:transparent;color:var(--muted);padding:4px;border-radius:6px}.icon-btn:hover{background:#f0f2f5;color:var(--danger)}
+    .tiny-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.tiny-grid label{font-size:11px;color:var(--muted)}.tiny-grid input{width:100%;margin-top:3px;border:1px solid var(--line);border-radius:7px;padding:6px}.range-row{display:grid;grid-template-columns:76px 1fr 42px;align-items:center;gap:8px;margin:9px 0;color:#4c596d}.range-row input{width:100%;accent-color:var(--accent)}.range-row output{text-align:right;color:var(--muted);font-size:12px}.divider{height:1px;background:var(--line);margin:12px 0}.footer-note{font-size:11px;color:var(--muted);margin-top:12px}
+    @media(max-width:1100px){main{grid-template-columns:280px minmax(420px,1fr)}main>aside:last-child{display:none}}@media(max-width:760px){header{height:auto;padding:12px;align-items:flex-start}.actions{margin-left:0}.brand{margin-right:auto}main{display:flex;flex-direction:column;padding:8px}.sidebar{max-height:none}.workspace{min-height:500px}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">差分平铺工具<small>本地处理 · 文件不会上传</small></div>
+    <div class="actions">
+      <button class="btn" id="newProject">新建</button><button class="btn" id="saveProject">保存工程</button><label class="btn"><input id="loadProject" type="file" accept="application/json,.json">载入工程</label><button class="btn primary" id="exportPng">导出 PNG</button>
+    </div>
+  </header>
+  <main>
+    <aside class="sidebar">
+      <div class="section"><div class="panel-title">导入素材</div>
+        <label class="btn primary" style="display:flex;justify-content:center;width:100%;"><input id="imageFiles" type="file" accept="image/*" multiple>导入立绘</label>
+        <div class="hint">一次选择全身立绘和全部差分。系统会优先选择文件名含“默认”的图片，否则选择第一张作为全身立绘。</div>
+        <div class="row"><label>全身立绘</label><select id="fullbodySelect" style="width:150px"><option value="">未导入</option></select></div>
+        <div id="dropZone" class="drop">也可以把图片拖到这里</div>
+      </div>
+      <div class="section"><div class="panel-title">画布</div>
+        <div class="row"><label>宽度</label><input id="canvasW" type="number" min="400" max="6000" step="10" value="1600"></div>
+        <div class="row"><label>背景</label><input id="bgColor" type="color" value="#ffffff"><label class="check"><input id="transparent" type="checkbox">透明</label></div>
+        <div class="row"><label>导出质量</label><select id="exportScale"><option value="1">100%</option><option value="1.5">150%</option><option value="2" selected>200%</option></select></div>
+      </div>
+      <div class="section"><div class="panel-title">角色信息</div>
+        <div class="row"><label>姓名</label><input id="characterName" type="text" placeholder="角色姓名" value="角色姓名"></div>
+        <div class="row"><label>姓名字号</label><input id="nameSize" type="number" min="12" max="240" value="72"></div>
+        <div class="row"><label>副标题</label><input id="subtitle" type="text" placeholder="可选"></div>
+        <div class="row"><label>副标题位置</label><select id="subtitleSide"><option value="right" selected>姓名右侧</option><option value="left">姓名左侧</option></select></div>
+        <div class="row"><label>副标题字号</label><input id="subtitleSize" type="number" min="8" max="180" value="48"></div>
+        <div class="row"><label>字体</label><label class="btn" style="padding:6px 9px"><input id="fontFile" type="file" accept=".ttf,.otf,.woff,.woff2">上传字体</label><button id="resetFont" class="btn" type="button" style="padding:6px 9px">恢复默认</button></div>
+        <div class="hint" id="fontName">当前字体：系统默认</div>
+      </div>
+      <div class="section"><div class="panel-title">全身立绘</div><div class="hint">默认保持原图比例。可在预览中拖动，点击边框控制点可放大缩小。</div>
+        <div class="range-row"><label>图像大小</label><input id="fullScale" type="range" min="20" max="220" value="100"><output id="fullScaleValue">100%</output></div>
+      </div>
+      <div class="section"><div class="panel-title">头像网格</div>
+        <div class="row"><label>每行数量</label><input id="columns" type="number" min="1" max="10" value="4"></div>
+        <div class="row"><label>列间距</label><input id="colGap" type="number" min="0" max="200" value="22"></div>
+        <div class="row"><label>行间距</label><input id="rowGap" type="number" min="0" max="200" value="28"></div>
+        <div class="row"><label>差分字号</label><input id="labelSize" type="number" min="8" max="100" value="28"></div>
+        <div class="row"><label>标签前缀</label><input id="labelPrefix" type="text" value="@"></div>
+        <label class="check"><input id="showLabels" type="checkbox" checked>显示差分名称</label>
+        <label class="check"><input id="showLabelBg" type="checkbox" checked>显示差分名称白底</label>
+      </div>
+      <div class="section"><div class="panel-title">立绘差分</div><div class="hint">差分位置是豆腐块内立绘的统一取景位置；整组位置控制整个差分网格。</div>
+        <div class="range-row"><label>差分位置X</label><input id="cropX" type="range" min="0" max="100" value="28"><output id="cropXValue">28</output></div>
+        <div class="range-row"><label>差分位置Y</label><input id="cropY" type="range" min="0" max="100" value="4"><output id="cropYValue">4</output></div>
+        <div class="range-row"><label>豆腐块宽</label><input id="cellW" type="range" min="80" max="800" value="240"><output id="cellWValue">240</output></div>
+        <div class="range-row"><label>豆腐块高</label><input id="cellH" type="range" min="80" max="800" value="220"><output id="cellHValue">220</output></div>
+        <div class="range-row"><label>整组位置X</label><input id="groupX" type="range" min="0" max="5000" value="500"><output id="groupXValue">500</output></div>
+        <div class="range-row"><label>整组位置Y</label><input id="groupY" type="range" min="0" max="3000" value="60"><output id="groupYValue">60</output></div>
+      </div>
+      <div class="footer-note">所有图片只在当前浏览器内处理，不会上传服务器。</div>
+    </aside>
+    <section class="workspace">
+      <div id="emptyState" class="empty">先导入一张全身立绘和多张差分图片<br>工具会在这里生成展示表</div>
+      <div class="canvas-wrap"><div id="canvasStage" class="canvas-stage"><canvas id="preview" width="1600" height="900"></canvas><div id="selectionOverlay" class="selection-overlay" aria-hidden="true"></div></div></div>
+      <div class="status"><span class="dot"></span><span id="statusText">等待导入图片</span><span>·</span><span id="sizeText">1600 × 900 px</span></div>
+    </section>
+    <aside class="sidebar"><div class="panel-title">差分列表 <span id="count" style="color:var(--muted);font-weight:500">0</span></div><div class="hint">拖动列表项目可调整画布中的立绘顺序；单击画布及差分列表中的差分名称可直接修改。</div><div id="expressionList" class="expression-list"></div><div id="selectionPanel" style="display:none"><div class="divider"></div><div class="panel-title">选中差分校正</div><div class="hint">只影响当前差分，不改变统一裁切框。</div><div class="tiny-grid"><label>水平偏移<input id="selectedX" type="number" step="1" value="0"></label><label>垂直偏移<input id="selectedY" type="number" step="1" value="0"></label><label>缩放<input id="selectedZoom" type="number" min="0.5" max="3" step="0.05" value="1"></label></div><button class="btn ghost" id="resetSelected" style="margin-top:10px;padding-left:0">重置当前校正</button></div></aside>
+  </main>
+</div>
+<script src="pica.min.js"></script><script src="app.js"></script><script type="text/legacy">
+const $=id=>document.getElementById(id), state={fullbody:null,expressions:[],selected:null};
+const controls=['canvasW','bgColor','transparent','characterName','nameSize','labelSize','labelPrefix','columns','cellSize','colGap','rowGap','showLabels','cropX','cropY','cropW','cropH','exportScale'];
+const val=id=>$(id).type==='checkbox'?$(id).checked:$(id).type==='number'?Number($(id).value):$(id).value;
+function readControls(){const c={};controls.forEach(id=>c[id]=val(id));return c}
+function setControls(c){controls.forEach(id=>{if(c[id]===undefined)return;$(id).type==='checkbox'?$(id).checked=c[id]:$(id).value=c[id]})}
+function loadImage(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=()=>resolve({fileName:file.name,data:r.result,img});img.onerror=reject;img.src=r.result};r.onerror=reject;r.readAsDataURL(file)})}
+function stripName(name){return name.replace(/\.[^.]+$/,'').replace(/^\d+[_\- ]*/, '')||'差分'}
+async function addExpressions(files){for(const file of [...files].filter(f=>f.type.startsWith('image/'))){const x=await loadImage(file);state.expressions.push({id:crypto.randomUUID(),name:stripName(file.name),data:x.data,img:x.img,dx:0,dy:0,zoom:1,visible:true})}state.expressions.sort((a,b)=>a.fileName?.localeCompare(b.fileName,'zh')||a.name.localeCompare(b.name,'zh'));state.selected=state.expressions.at(-1)?.id||state.selected;renderAll()}
+function handleFullbody(file){loadImage(file).then(x=>{state.fullbody={data:x.data,img:x.img,name:file.name};renderAll()})}
+function currentSelected(){return state.expressions.find(x=>x.id===state.selected)}
+function updateSelectedUI(){const x=currentSelected(),p=$('selectionPanel');p.style.display=x?'block':'none';if(x){$('selectedX').value=x.dx;$('selectedY').value=x.dy;$('selectedZoom').value=x.zoom}}
+function fitImage(ctx,img,x,y,w,h){const s=Math.min(w/img.width,h/img.height),dw=img.width*s,dh=img.height*s;ctx.drawImage(img,x+(w-dw)/2,y+(h-dh)/2,dw,dh)}
+function draw(){const c=readControls(), cols=Math.max(1,c.columns), cell=Math.max(80,c.cellSize), gapX=c.colGap, gapY=c.rowGap, left=Math.round(c.canvasW*.28), pad=45, labelH=c.showLabels?c.labelSize+22:10, rows=Math.ceil(state.expressions.filter(x=>x.visible).length/cols)||1, h=Math.max(700, pad*2+rows*(cell+labelH)+Math.max(0,rows-1)*gapY), w=Math.max(900,c.canvasW);const can=$('preview'),scale=1;can.width=w;can.height=h;const ctx=can.getContext('2d');ctx.clearRect(0,0,w,h);if(!c.transparent){ctx.fillStyle=c.bgColor;ctx.fillRect(0,0,w,h)}
+  ctx.fillStyle='#202733';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=`700 ${c.nameSize}px system-ui, sans-serif`;ctx.fillText(c.characterName,left/2,pad+c.nameSize/2);
+  if(state.fullbody){ctx.save();ctx.beginPath();ctx.rect(24,pad+70,left-48,h-pad-90);ctx.clip();fitImage(ctx,state.fullbody.img,24,pad+70,left-48,h-pad-90);ctx.restore()}
+  const visible=state.expressions.filter(x=>x.visible);visible.forEach((x,i)=>{const col=i%cols,row=Math.floor(i/cols),x0=left+pad+col*(cell+gapX),y0=pad+row*(cell+labelH+gapY);ctx.save();ctx.fillStyle='#f0f2f5';ctx.fillRect(x0,y0,cell,cell);const img=x.img,cropX=img.width*c.cropX/100,cropY=img.height*c.cropY/100,cropW=img.width*c.cropW/100,cropH=img.height*c.cropH/100,z=x.zoom||1;let sx=cropX+cropW*(x.dx||0)/100,sy=cropY+cropH*(x.dy||0)/100,sw=cropW/z,sh=cropH/z;sx=Math.max(0,Math.min(img.width-sw,sx));sy=Math.max(0,Math.min(img.height-sh,sy));ctx.drawImage(img,sx,sy,sw,sh,x0,y0,cell,cell);ctx.restore();if(c.showLabels){ctx.fillStyle='#202733';ctx.font=`600 ${c.labelSize}px system-ui, sans-serif`;ctx.textAlign='center';ctx.fillText(c.labelPrefix+x.name,x0+cell/2,y0+cell+labelH/2)}if(x.id===state.selected){ctx.strokeStyle='#5267d9';ctx.lineWidth=4;ctx.strokeRect(x0-2,y0-2,cell+4,cell+4)}});
+  $('sizeText').textContent=`${w} × ${h} px`;return {w,h}
+}
+function renderList(){const box=$('expressionList');box.innerHTML='';$('count').textContent=state.expressions.length?`(${state.expressions.length})`:'';state.expressions.forEach(x=>{const el=document.createElement('div');el.className='expr'+(x.id===state.selected?' selected':'');el.innerHTML=`<img src="${x.data}" alt=""><div class="name"><input value="${escapeHtml(x.name)}"><div class="sub">${x.img.width} × ${x.img.height}</div></div><button class="icon-btn" title="移除">×</button>`;el.onclick=()=>{state.selected=x.id;updateSelectedUI();renderAll()};el.querySelector('input').oninput=e=>{x.name=e.target.value;draw()};el.querySelector('.icon-btn').onclick=e=>{e.stopPropagation();state.expressions=state.expressions.filter(y=>y!==x);if(state.selected===x.id)state.selected=state.expressions[0]?.id||null;renderAll()};box.appendChild(el)})}
+function escapeHtml(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function renderAll(){const has=!!state.fullbody||state.expressions.length>0;$('emptyState').style.display=has?'none':'flex';$('statusText').textContent=has?`已载入 ${state.expressions.length} 张差分`:'等待导入图片';draw();renderList();updateSelectedUI()}
+function exportPng(){if(!state.fullbody&&!state.expressions.length)return alert('请先导入图片');const c=readControls(),size=draw(),out=document.createElement('canvas'),k=c.exportScale;out.width=size.w*k;out.height=size.h*k;const ox=$('preview'),ctx=out.getContext('2d');ctx.scale(k,k);ctx.drawImage(ox,0,0);const a=document.createElement('a');a.download=(c.characterName||'差分平铺')+'.png';a.href=out.toDataURL('image/png');a.click()}
+function projectData(){const c=readControls();return {version:1,controls:c,fullbody:state.fullbody?{data:state.fullbody.data,name:state.fullbody.name}:null,expressions:state.expressions.map(x=>({data:x.data,name:x.name,dx:x.dx,dy:x.dy,zoom:x.zoom,visible:x.visible}))}}
+async function loadProjectData(p){setControls(p.controls||{});state.fullbody=p.fullbody?{data:p.fullbody.data,name:p.fullbody.name,img:await imageFromData(p.fullbody.data)}:null;state.expressions=[];for(const x of p.expressions||[]){state.expressions.push({id:crypto.randomUUID(),...x,img:await imageFromData(x.data)})}state.selected=state.expressions[0]?.id||null;renderAll()}
+function imageFromData(data){return new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=reject;img.src=data})}
+controls.forEach(id=>$(id).addEventListener('input',()=>renderAll()));$('fullbodyFile').onchange=e=>e.target.files[0]&&handleFullbody(e.target.files[0]);$('expressionFiles').onchange=e=>addExpressions(e.target.files);$('exportPng').onclick=exportPng;
+$('newProject').onclick=()=>{if(confirm('清空当前工程？')){state.fullbody=null;state.expressions=[];state.selected=null;renderAll()}};
+$('saveProject').onclick=()=>{const b=new Blob([JSON.stringify(projectData())],{type:'application/json'}),a=document.createElement('a');a.download='差分平铺工程.json';a.href=URL.createObjectURL(b);a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)};
+$('loadProject').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>loadProjectData(JSON.parse(r.result)).catch(()=>alert('工程文件读取失败'));r.readAsText(f)};
+['selectedX','selectedY','selectedZoom'].forEach(id=>$(id).oninput=()=>{const x=currentSelected();if(!x)return;x.dx=Number($('selectedX').value)||0;x.dy=Number($('selectedY').value)||0;x.zoom=Number($('selectedZoom').value)||1;draw()});$('resetSelected').onclick=()=>{const x=currentSelected();if(!x)return;x.dx=x.dy=0;x.zoom=1;updateSelectedUI();draw()};
+const dz=$('dropZone');['dragenter','dragover'].forEach(e=>dz.addEventListener(e,x=>{x.preventDefault();dz.classList.add('over')}));['dragleave','drop'].forEach(e=>dz.addEventListener(e,x=>{x.preventDefault();dz.classList.remove('over')}));dz.addEventListener('drop',e=>addExpressions(e.dataTransfer.files));
+renderAll();
+</script>
+</body>
+</html>
